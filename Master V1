@@ -1,1 +1,116 @@
-aloha
+%% Setting up
+
+close all
+clear all
+
+number_of_trials = 1;
+
+%% Load Screens
+
+Screen('Preference', 'SkipSyncTests', 1);
+[window, rect] = Screen('OpenWindow', 0,[128 128 128] );
+Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
+
+HideCursor();
+window_w = rect(3); % defining size of screen
+window_h = rect(4);
+
+x_center = window_w/2;
+y_center = window_h/2;
+
+
+cd('shape_Stimuli');
+
+
+
+%% showing random morph image behind noise
+
+for f = 1:147
+    Mask_Plain = imread([num2str(f) 'mask.JPG']); %Load black circle on white background.
+    Mask_Plain = 255-Mask_Plain(:,:,1); %use first layer
+    tmp_bmp = imread(['Morph' num2str(f) '.JPG']);
+    tmp_bmp(:,:,4) = Mask_Plain;
+    tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
+    Screen('DrawText', window, 'Loading...', x_center, y_center-25); % Write text to confirm loading of images
+    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), x_center, y_center+25); % Write text to confirm percentage complete
+    Screen('Flip', window); % Display text -- loading stuff
+end
+
+HideCursor();
+
+img_w = size(tmp_bmp, 2)/4; % width of pictures
+img_h = size(tmp_bmp, 1)/4; % height of pictures
+
+for trial_num = 1:number_of_trials
+    
+    random_location = [0,0]; %making a random location for the image to be displayed at
+    random_location(1) = randi([ceil(img_w/2) floor(window_w-(img_w/2))]);
+    random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
+    shape_num = 147; % total number of stimuli
+    
+    random_offset = randi(shape_num); % making sure the first is different each time (random)
+
+    greyorblack = round(rand(window_w, window_h)) * 255;
+    for cols = 1:window_h
+        for rows = 1:window_w
+            if greyorblack(rows,cols) == 255
+                greyorblack(rows,cols) = 128;
+            elseif greyorblack(rows, cols) == 0
+                greyorblack(rows,cols) = 0; % changing the colors of the noise to be closer to the background color of the image
+            end
+        end
+    end
+    mask_mem = resizem(greyorblack, [3 * rect(4), 3 * rect(3)]);
+    mask_mem_Tex = Screen('MakeTexture', window, mask_mem);  % make the mask_memory texture
+    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+     Screen('DrawTexture', window, tid(random_offset), [], ...
+        [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
+    Screen('Flip', window);
+    
+    WaitSecs(8);
+    %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
+    
+    DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
+    imageA = imread('Morph49.JPG');
+    imageB = imread('Morph98.JPG');
+    imageC = imread('Morph147.JPG');
+    makeA = Screen('MakeTexture', window, imageA);
+    makeB = Screen('MakeTexture', window, imageB);
+    makeC = Screen('MakeTexture', window, imageC);
+    imageA_location = [window_w/3-img_w/2, y_center-img_h/2, window_w/3+img_w/2, y_center+img_h/2];
+    imageB_location = [x_center-img_w/2, y_center-img_h/2, x_center+img_w/2, y_center+img_h/2];
+    imageC_location = [2 * window_w/3-img_w/2, y_center-img_h/2, 2 * window_w/3+img_w/2, y_center+img_h/2];
+    Screen('DrawTextures', window, makeA, [], imageA_location);
+    Screen('DrawTextures', window, makeB, [], imageB_location);
+    Screen('DrawTextures', window, makeC, [], imageC_location);
+    DrawFormattedText(window,'1',window_w/3,((imageA_location(4)) + (.25 * img_h)),[0 0 0]);
+    DrawFormattedText(window,'2','center',((imageB_location(4)) + (.25 * img_h)),[0 0 0]);
+    DrawFormattedText(window,'3',2 * window_w/3,((imageC_location(4)) + (.25 * img_h)),[0 0 0]);
+    Screen('Flip', window);
+    % all of ^ is getting the best place (monitor size independent) of where to
+    % display the images and text and displaying them
+    % getting keyboard input below
+    tf = 0;
+    while tf == 0
+        [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
+        if keyIsDown == 1
+            keypressed = KbName(keyCode)
+            if strcmp(keypressed, '1!')
+                if strcmp(keypressed, '2@')
+                    if strcmp(keypressed, '3#')
+                        tf = 1;
+                    end
+                end
+            end
+        end
+    end
+    %response(trial_num) = KbName(keyCode)
+    
+    
+end
+
+
+
+%WaitSecs();
+Screen('CloseAll');
+cd('../'); %Go back to original directory.
