@@ -1,14 +1,15 @@
 %% Setting up
 
-close all
-clear all
+close all;
+clear all;
 
-number_of_trials = 1;
+number_of_trials = 3;
+response = zeros(number_of_trials,2);
 
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
-[window, rect] = Screen('OpenWindow', 0,[128 128 128] );
+[window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
 HideCursor();
@@ -41,6 +42,7 @@ HideCursor();
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
 
+
 for trial_num = 1:number_of_trials
     
     random_location = [0,0]; %making a random location for the image to be displayed at
@@ -48,8 +50,8 @@ for trial_num = 1:number_of_trials
     random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
     shape_num = 147; % total number of stimuli
     
-    random_offset = randi(shape_num); % making sure the first is different each time (random)
-
+    randshape = randi(shape_num); % making sure the shape is different each time (random)
+    
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
         for rows = 1:window_w
@@ -60,14 +62,15 @@ for trial_num = 1:number_of_trials
             end
         end
     end
-    mask_mem = resizem(greyorblack, [3 * rect(4), 3 * rect(3)]);
-    mask_mem_Tex = Screen('MakeTexture', window, mask_mem);  % make the mask_memory texture
-    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
-     Screen('DrawTexture', window, tid(random_offset), [], ...
+    mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
+    mask_mem_Tex = Screen('MakeTexture', window, mask_mem, 0);  % make the mask_memory texture
+    Screen('DrawTexture', window, tid(randshape), [], ...
         [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
+    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+
     Screen('Flip', window);
     
-    WaitSecs(8);
+    WaitSecs(10);
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
@@ -94,23 +97,48 @@ for trial_num = 1:number_of_trials
     while tf == 0
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
         if keyIsDown == 1
-            keypressed = KbName(keyCode)
+            keypressed = KbName(keyCode);
             if strcmp(keypressed, '1!')
-                if strcmp(keypressed, '2@')
-                    if strcmp(keypressed, '3#')
-                        tf = 1;
-                    end
-                end
+                tf = 1;
+                whichone = 1;
+            elseif strcmp(keypressed, '2@')
+                tf = 1;
+                whichone = 2;
+            elseif strcmp(keypressed, '3#')
+                tf = 1 ;
+                whichone = 3;
             end
         end
     end
-    %response(trial_num) = KbName(keyCode)
-    
-    
+
+    if whichone == 1
+        if (randshape > 24.5 && randshape < 73.5)
+            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+        elseif (randshape > 73.5 && randshape < 122.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        end
+    elseif whichone == 2
+        if (randshape > 24.5 && randshape < 73.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        elseif (randshape > 73.5 && randshape < 122.5)
+            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        end
+    elseif whichone == 3
+        if (randshape > 24.5 && randshape < 73.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        elseif (randshape > 73.5 && randshape < 122.5)
+            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+        end
+    end
 end
 
 
 
-%WaitSecs();
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
