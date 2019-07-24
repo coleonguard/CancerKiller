@@ -3,7 +3,7 @@
 close all;
 clear all;
 
-number_of_trials = 10;
+number_of_trials = 1;
 response = zeros(number_of_trials,1);
 s1 = [1,0,0;1,0,0;1,0,0];
 s2 = [0,1,0;0,1,0;0,1,0];
@@ -63,18 +63,23 @@ for trial_num = 1:number_of_trials
     for cols = 1:window_h
         for rows = 1:window_w
             if greyorblack(rows,cols) == 255
-                greyorblack(rows,cols) = 128;
+                greyorblack(rows,cols) = 75;
             elseif greyorblack(rows, cols) == 0
-                greyorblack(rows,cols) = 0; % changing the colors of the noise to be closer to the background color of the image
+                greyorblack(rows,cols) = 45; % changing the colors of the noise to be closer to the background color of the image
             end
         end
     end
     mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
-    mask_mem_Tex = Screen('MakeTexture', window, mask_mem);  % make the mask_memory texture
-        Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+    for hi = 1:3
+        background(:,:,hi) = mask_mem;
+    end
+    background(:,:,4) = ones(2*rect(4),2*rect(3)) * 200;
+    
+    mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
 
     Screen('DrawTexture', window, tid(randshape), [], ...
         [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
+        Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
 
     Screen('Flip', window);
     
@@ -177,6 +182,7 @@ for i = 1:number_of_trials
     end
     totalserials = totalserials + isserialdependence(1,i);
 end
-num2str(totalserials, '/', number_of_trials)
+str = strcat(num2str(totalserials), '/', num2str(number_of_trials));
+str
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
