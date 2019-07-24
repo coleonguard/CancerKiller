@@ -3,12 +3,18 @@
 close all;
 clear all;
 
-number_of_trials = 3;
+number_of_trials = 10;
 response = zeros(number_of_trials,1);
 s1 = [1,0,0;1,0,0;1,0,0];
 s2 = [0,1,0;0,1,0;0,1,0];
 s3 = [0,0,1;0,0,1;0,0,1];
 actualresponse = zeros(3,3,number_of_trials);
+previousresponse = 0;
+comparativeincorrect = zeros(3,3);
+comparativediagonal1 = [1,0,0;0,0,0;0,0,0];
+comparativediagonal2 = [0,0,0; 0,1,0;0,0,0];
+comparativediagonal3 = [0,0,0;0,0,0;0,0,1];
+isserialdependence = zeros(1,number_of_trials);
 
 %% Load Screens
 
@@ -23,10 +29,7 @@ window_h = rect(4);
 x_center = window_w/2;
 y_center = window_h/2;
 
-
 cd('shape_Stimuli');
-
-
 
 %% showing random morph image behind noise
 
@@ -67,14 +70,15 @@ for trial_num = 1:number_of_trials
         end
     end
     mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
-    mask_mem_Tex = Screen('MakeTexture', window, mask_mem, 0);  % make the mask_memory texture
+    mask_mem_Tex = Screen('MakeTexture', window, mask_mem);  % make the mask_memory texture
+        Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+
     Screen('DrawTexture', window, tid(randshape), [], ...
         [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
-    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
 
     Screen('Flip', window);
     
-    WaitSecs(10);
+    WaitSecs(1);
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
@@ -116,6 +120,7 @@ for trial_num = 1:number_of_trials
     end
 
     if whichone == 1
+        previousone = 1;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(1,1,trial_num) = 1;
@@ -127,6 +132,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,1,trial_num) = 1;
         end
     elseif whichone == 2
+        previousone = 2;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,2,trial_num) = 1;
@@ -138,6 +144,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,2,trial_num) = 1;
         end
     elseif whichone == 3
+        previousone = 3;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,3,trial_num) = 1;
@@ -149,9 +156,27 @@ for trial_num = 1:number_of_trials
             actualresponse(3,3,trial_num) = 1;
         end
     end
+    if previousresponse == 1
+        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
+    elseif previousresponse == 1
+        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
+    elseif previousresponse == 1
+        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
+    end        
 end
-
-
-
+totalserials = 0;
+for i = 1:number_of_trials
+    if actualresponse(:,:,i) == comparativeincorrect
+        isserialdependence(1,i) = 0;
+    else
+        if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:))))
+            isserialdependence(1,i) = 0;
+        else
+            isserialdependence(1,i) = 1;
+        end
+    end
+    totalserials = totalserials + isserialdependence(1,i);
+end
+num2str(totalserials, '/', number_of_trials)
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
