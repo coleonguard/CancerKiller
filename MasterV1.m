@@ -3,7 +3,7 @@
 close all;
 clear all;
 
-number_of_trials = 1;
+number_of_trials = 20;
 response = zeros(number_of_trials,1);
 s1 = [1,0,0;1,0,0;1,0,0]; % Matrix representing the first shape being shown
 s2 = [0,1,0;0,1,0;0,1,0]; % Matrix representing the second shape being shown
@@ -15,7 +15,7 @@ comparativediagonal1 = [1,0,0;0,0,0;0,0,0];
 comparativediagonal2 = [0,0,0; 0,1,0;0,0,0];
 comparativediagonal3 = [0,0,0;0,0,0;0,0,1];
 isserialdependence = zeros(1,number_of_trials);
-
+actualaccuracy = 0;
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
@@ -83,7 +83,7 @@ for trial_num = 1:number_of_trials
 
     Screen('Flip', window);
     
-    WaitSecs(1);
+    WaitSecs(.2);
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
@@ -163,11 +163,12 @@ for trial_num = 1:number_of_trials
     end
     if previousresponse == 1
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    elseif previousresponse == 1
-        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    elseif previousresponse == 1
-        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    end        
+    elseif previousresponse == 2
+        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
+    elseif previousresponse == 3
+        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
+    end     
+    actualaccuracy = response(trial_num,1)+actualaccuracy;
 end
 totalserials = 0;
 for i = 1:number_of_trials
@@ -182,7 +183,9 @@ for i = 1:number_of_trials
     end
     totalserials = totalserials + isserialdependence(1,i);
 end
-str = strcat(num2str(totalserials), '/', num2str(number_of_trials));
-str
+Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials));
+Serial_Dependence
+Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials));
+Accuracy
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
