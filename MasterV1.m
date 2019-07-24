@@ -5,9 +5,9 @@ clear all;
 
 number_of_trials = 1;
 response = zeros(number_of_trials,1);
-s1 = [1,0,0;1,0,0;1,0,0];
-s2 = [0,1,0;0,1,0;0,1,0];
-s3 = [0,0,1;0,0,1;0,0,1];
+s1 = [1,0,0;1,0,0;1,0,0]; % Matrix representing the first shape being shown
+s2 = [0,1,0;0,1,0;0,1,0]; % Matrix representing the second shape being shown
+s3 = [0,0,1;0,0,1;0,0,1]; % Matrix representing the third shape being shown
 actualresponse = zeros(3,3,number_of_trials);
 previousresponse = 0;
 comparativeincorrect = zeros(3,3);
