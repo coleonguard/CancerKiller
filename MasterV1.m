@@ -10,10 +10,10 @@ subject_info = inputdlg(Info,dlg_title,num_lines);
 
 number_of_trials = 20;
 response = zeros(number_of_trials,1);
-s1 = [1,0,0;1,0,0;1,0,0];
-s2 = [0,1,0;0,1,0;0,1,0];
-s3 = [0,0,1;0,0,1;0,0,1];
-actualresponse = zeros(3,3,number_of_trials);
+s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
+s2 = [0,1,0;0,1,0;0,1,0]; % Matrix for when the second main shape is shown
+s3 = [0,0,1;0,0,1;0,0,1]; % Matrix for when the third main shape is shown
+actualresponse = zeros(3,3,number_of_trials);  
 previousresponse = 0;
 comparativeincorrect = zeros(3,3);
 comparativediagonal1 = [1,0,0;0,0,0;0,0,0];
