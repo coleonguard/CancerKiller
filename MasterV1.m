@@ -3,6 +3,8 @@
 close all;
 clear all;
 
+%% Obtaining User Input
+
 Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
 dlg_title = 'Subject Information';
 num_lines = 1;
@@ -13,16 +15,20 @@ subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
 number_of_trials = 5;
-response = zeros(number_of_trials,1);
-s1 = [1,0,0;1,0,0;1,0,0];
-s2 = [0,1,0;0,1,0;0,1,0];
-s3 = [0,0,1;0,0,1;0,0,1];
-actualresponse = zeros(3,3,number_of_trials);
+response = zeros(number_of_trials,1);%if the user is right or wrong
+
+s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
+s2 = [0,1,0;0,1,0;0,1,0]; % Matrix for when the second main shape is shown
+s3 = [0,0,1;0,0,1;0,0,1];% Matrix for when the third main shape is shown
+
+actualresponse = zeros(3,3,number_of_trials);%what the user actually responded
 previousstimuli = zeros(number_of_trials,1);
 comparativeincorrect = zeros(3,3);
-comparativediagonal1 = [1,0,0;0,0,0;0,0,0];
-comparativediagonal2 = [0,0,0; 0,1,0;0,0,0];
-comparativediagonal3 = [0,0,0;0,0,0;0,0,1];
+
+comparativediagonal1 = [1,0,0;0,0,0;0,0,0]; %the prev matrix of A shape
+comparativediagonal2 = [0,0,0; 0,1,0;0,0,0]; %the prev matrix of B shape
+comparativediagonal3 = [0,0,0;0,0,0;0,0,1]; %the prev matrix of C shape
+
 isserialdependence = zeros(1,number_of_trials);
 actualaccuracy = 0;
 %% Load Screens
@@ -48,8 +54,10 @@ for f = 1:147
     tmp_bmp = imread(['Morph' num2str(f) '.JPG']);
     tmp_bmp(:,:,4) = Mask_Plain;
     tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
+    
     Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
     Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete    
+    
     Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
     Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
     Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects teh original tumor looked most similar to.', x_center-648, y_center + 50) 
@@ -71,13 +79,14 @@ for trial_num = 1:number_of_trials
     
     randshape = randi(shape_num); % making sure the shape is different each time (random)
     
+    % changing the colors of the noise to be closer to the background color of the image
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
         for rows = 1:window_w
-            if greyorblack(rows,cols) == 255
+            if greyorblack(rows,cols) == 255 %white (light)
                 greyorblack(rows,cols) = 75;
-            elseif greyorblack(rows, cols) == 0
-                greyorblack(rows,cols) = 45; % changing the colors of the noise to be closer to the background color of the image
+            elseif greyorblack(rows, cols) == 0 %black (dark)
+                greyorblack(rows,cols) = 45; 
             end
         end
     end
@@ -99,26 +108,33 @@ for trial_num = 1:number_of_trials
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
+    
     imageA = imread('Morph49.JPG');
     imageB = imread('Morph98.JPG');
     imageC = imread('Morph147.JPG');
+    
     makeA = Screen('MakeTexture', window, imageA);
     makeB = Screen('MakeTexture', window, imageB);
     makeC = Screen('MakeTexture', window, imageC);
+    
     imageA_location = [window_w/3-img_w/2, y_center-img_h/2, window_w/3+img_w/2, y_center+img_h/2];
     imageB_location = [x_center-img_w/2, y_center-img_h/2, x_center+img_w/2, y_center+img_h/2];
     imageC_location = [2 * window_w/3-img_w/2, y_center-img_h/2, 2 * window_w/3+img_w/2, y_center+img_h/2];
+    
     Screen('DrawTextures', window, makeA, [], imageA_location);
     Screen('DrawTextures', window, makeB, [], imageB_location);
     Screen('DrawTextures', window, makeC, [], imageC_location);
+    
     DrawFormattedText(window,'1',window_w/3,((imageA_location(4)) + (.25 * img_h)),[0 0 0]);
     DrawFormattedText(window,'2','center',((imageB_location(4)) + (.25 * img_h)),[0 0 0]);
     DrawFormattedText(window,'3',2 * window_w/3,((imageC_location(4)) + (.25 * img_h)),[0 0 0]);
+    
     Screen('Flip', window);
     % all of ^ is getting the best place (monitor size independent) of where to
     % display the images and text and displaying them
     % getting keyboard input below
-    tf = 0;
+    
+    tf = 0; %user clicks = 1 user didn't click = 0
     while tf == 0
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
         if keyIsDown == 1
@@ -138,47 +154,49 @@ for trial_num = 1:number_of_trials
 
     if whichone == 1
         if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
             actualresponse(1,1,trial_num) = 1;
             previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(2,1,trial_num) = 1;
             previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(3,1,trial_num) = 1;
             previousstimuli(trial_num,1) = 3;
         end
     elseif whichone == 2
         if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(1,2,trial_num) = 1;
             previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
             actualresponse(2,2,trial_num) = 1;
             previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(3,2,trial_num) = 1;
             previousstimuli(trial_num,1) = 3;
         end
     elseif whichone == 3
         if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(1,3,trial_num) = 1;
             previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num,1) = 0; %0 entry in second column for incorrect identification
+            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
             actualresponse(2,3,trial_num) = 1;
             previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-            response(trial_num, 1) = 1; %1 entry in second column is for correct identification
+            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
             actualresponse(3,3,trial_num) = 1;
             previousstimuli(trial_num,1) = 3;
         end
     end
+    
+     %% compares the user response to the response biased towards A, B, or C shape
     if trial_num ~= 1
         if previousstimuli(trial_num-1,1) == 1
             actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
@@ -190,11 +208,13 @@ for trial_num = 1:number_of_trials
     end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
 end
+
 totalserials = 0;
 for i = 1:number_of_trials
     if actualresponse(:,:,i) == comparativeincorrect
         isserialdependence(1,i) = 0;
     else
+        %the user answers matches the correct answer key
         if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:))))
             isserialdependence(1,i) = 0;
         else
@@ -203,16 +223,18 @@ for i = 1:number_of_trials
     end
     totalserials = totalserials + isserialdependence(1,i);
 end
-Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1));
+Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
 Serial_Dependence
-Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1));
+Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
 Accuracy
 
 %% Saving User's Results
+cd('../');
 if isdir('Results')
     cd('Results');
 elseif ~isdir('Results')
     mkdir('Results');
+    cd('Results');
 end
 
 nameID = char(upper(subject_info(1))); % Take the initials (first cell in subject_info) and make it uppercase so our formatting is consistent. Also convert the cell to a character array (a string)
