@@ -3,11 +3,16 @@
 close all;
 clear all;
 
+Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
+dlg_title = 'Subject Information';
+num_lines = 1;
+subject_info = inputdlg(Info,dlg_title,num_lines);
+
 number_of_trials = 20;
 response = zeros(number_of_trials,1);
-s1 = [1,0,0;1,0,0;1,0,0]; % Matrix representing the first shape being shown
-s2 = [0,1,0;0,1,0;0,1,0]; % Matrix representing the second shape being shown
-s3 = [0,0,1;0,0,1;0,0,1]; % Matrix representing the third shape being shown
+s1 = [1,0,0;1,0,0;1,0,0];
+s2 = [0,1,0;0,1,0;0,1,0];
+s3 = [0,0,1;0,0,1;0,0,1];
 actualresponse = zeros(3,3,number_of_trials);
 previousresponse = 0;
 comparativeincorrect = zeros(3,3);
@@ -39,8 +44,11 @@ for f = 1:147
     tmp_bmp = imread(['Morph' num2str(f) '.JPG']);
     tmp_bmp(:,:,4) = Mask_Plain;
     tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
-    Screen('DrawText', window, 'Loading...', x_center, y_center-25); % Write text to confirm loading of images
-    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), x_center, y_center+25); % Write text to confirm percentage complete
+    Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
+    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete    
+    Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
+    Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
+    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects teh original tumor looked most similar to.', x_center-648, y_center + 50) 
     Screen('Flip', window); % Display text -- loading stuff
 end
 
@@ -71,7 +79,7 @@ for trial_num = 1:number_of_trials
     end
     mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
     for hi = 1:3
-        background(:,:,hi) = mask_mem;  % Generating fourth channel for transparnecy of noise
+        background(:,:,hi) = mask_mem;
     end
     background(:,:,4) = ones(2*rect(4),2*rect(3)) * 200;
     
@@ -83,11 +91,11 @@ for trial_num = 1:number_of_trials
 
     Screen('Flip', window);
     
-    WaitSecs(.2);
+    WaitSecs(.3);
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
-    imageA = imread('Morph49.JPG'); % 3 images are up here
+    imageA = imread('Morph49.JPG');
     imageB = imread('Morph98.JPG');
     imageC = imread('Morph147.JPG');
     makeA = Screen('MakeTexture', window, imageA);
@@ -111,21 +119,21 @@ for trial_num = 1:number_of_trials
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
         if keyIsDown == 1
             keypressed = KbName(keyCode);
-            if strcmp(keypressed, '1!') % Which key was pressed
+            if strcmp(keypressed, '1!')
                 tf = 1;
                 whichone = 1;
             elseif strcmp(keypressed, '2@')
                 tf = 1;
                 whichone = 2;
-            elseif strcmp(keypressed, '3#')  % Nothing else works but these keys
+            elseif strcmp(keypressed, '3#')
                 tf = 1 ;
                 whichone = 3;
             end
         end
     end
 
-    if whichone == 1 % whichone tells which key you pressed
-        previousone = 1;
+    if whichone == 1
+        previousstimuli = 1;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(1,1,trial_num) = 1;
@@ -135,9 +143,9 @@ for trial_num = 1:number_of_trials
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(3,1,trial_num) = 1;
-        end                 % setting the right column based on which one was pressed. look at the distance between the 3 main morphs of this randshape to determine whether or not you pressed the correct button
+        end
     elseif whichone == 2
-        previousone = 2;
+        previousstimuli = 2;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,2,trial_num) = 1;
@@ -149,7 +157,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,2,trial_num) = 1;
         end
     elseif whichone == 3
-        previousone = 3;
+        previousstimuli = 3;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,3,trial_num) = 1;
@@ -161,11 +169,11 @@ for trial_num = 1:number_of_trials
             actualresponse(3,3,trial_num) = 1;
         end
     end
-    if previousresponse == 1  % Remove later and replace previousresponse with a variable that is changed inside each of the three if statements above that saves which image was displayed rather than chosen in the previous trial
+    if previousstimuli == 1
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    elseif previousresponse == 2
+    elseif previousstimuli == 2
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
-    elseif previousresponse == 3
+    elseif previousstimuli == 3
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
     end     
     actualaccuracy = response(trial_num,1)+actualaccuracy;
