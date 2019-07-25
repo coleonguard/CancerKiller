@@ -251,3 +251,4 @@ save('Results.mat',  'totalserials', 'actualaccuracy', 'number_of_trials');
 
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
+cd('../');
