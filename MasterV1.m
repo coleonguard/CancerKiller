@@ -71,7 +71,7 @@ for trial_num = 1:number_of_trials
     end
     mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
     for hi = 1:3
-        background(:,:,hi) = mask_mem;
+        background(:,:,hi) = mask_mem;  % Generating fourth channel for transparnecy of noise
     end
     background(:,:,4) = ones(2*rect(4),2*rect(3)) * 200;
     
@@ -87,7 +87,7 @@ for trial_num = 1:number_of_trials
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
-    imageA = imread('Morph49.JPG');
+    imageA = imread('Morph49.JPG'); % 3 images are up here
     imageB = imread('Morph98.JPG');
     imageC = imread('Morph147.JPG');
     makeA = Screen('MakeTexture', window, imageA);
@@ -111,20 +111,20 @@ for trial_num = 1:number_of_trials
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
         if keyIsDown == 1
             keypressed = KbName(keyCode);
-            if strcmp(keypressed, '1!')
+            if strcmp(keypressed, '1!') % Which key was pressed
                 tf = 1;
                 whichone = 1;
             elseif strcmp(keypressed, '2@')
                 tf = 1;
                 whichone = 2;
-            elseif strcmp(keypressed, '3#')
+            elseif strcmp(keypressed, '3#')  % Nothing else works but these keys
                 tf = 1 ;
                 whichone = 3;
             end
         end
     end
 
-    if whichone == 1
+    if whichone == 1 % whichone tells which key you pressed
         previousone = 1;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
@@ -135,7 +135,7 @@ for trial_num = 1:number_of_trials
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(3,1,trial_num) = 1;
-        end
+        end                 % setting the right column based on which one was pressed. look at the distance between the 3 main morphs of this randshape to determine whether or not you pressed the correct button
     elseif whichone == 2
         previousone = 2;
         if (randshape > 24.5 && randshape < 73.5)
@@ -161,7 +161,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,3,trial_num) = 1;
         end
     end
-    if previousresponse == 1
+    if previousresponse == 1  % Remove later and replace previousresponse with a variable that is changed inside each of the three if statements above that saves which image was displayed rather than chosen in the previous trial
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
     elseif previousresponse == 2
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
