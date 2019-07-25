@@ -8,11 +8,6 @@ dlg_title = 'Subject Information';
 num_lines = 1;
 subject_info = inputdlg(Info,dlg_title,num_lines);
 
-Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
-dlg_title = 'Subject Information';
-num_lines = 1;
-subject_info = inputdlg(Info,dlg_title,num_lines);
-
 existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
