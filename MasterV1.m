@@ -8,13 +8,13 @@ dlg_title = 'Subject Information';
 num_lines = 1;
 subject_info = inputdlg(Info,dlg_title,num_lines);
 
-number_of_trials = 20;
+number_of_trials = 5;
 response = zeros(number_of_trials,1);
-s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
-s2 = [0,1,0;0,1,0;0,1,0]; % Matrix for when the second main shape is shown
-s3 = [0,0,1;0,0,1;0,0,1]; % Matrix for when the third main shape is shown
-actualresponse = zeros(3,3,number_of_trials);  
-previousresponse = 0;
+s1 = [1,0,0;1,0,0;1,0,0];
+s2 = [0,1,0;0,1,0;0,1,0];
+s3 = [0,0,1;0,0,1;0,0,1];
+actualresponse = zeros(3,3,number_of_trials);
+previousstimuli = zeros(number_of_trials,1);
 comparativeincorrect = zeros(3,3);
 comparativediagonal1 = [1,0,0;0,0,0;0,0,0];
 comparativediagonal2 = [0,0,0; 0,1,0;0,0,0];
@@ -133,49 +133,57 @@ for trial_num = 1:number_of_trials
     end
 
     if whichone == 1
-        previousstimuli = 1;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(1,1,trial_num) = 1;
+            previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(2,1,trial_num) = 1;
+            previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(3,1,trial_num) = 1;
+            previousstimuli(trial_num,1) = 3;
         end
     elseif whichone == 2
-        previousstimuli = 2;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,2,trial_num) = 1;
+            previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(2,2,trial_num) = 1;
+            previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(3,2,trial_num) = 1;
+            previousstimuli(trial_num,1) = 3;
         end
     elseif whichone == 3
-        previousstimuli = 3;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,3,trial_num) = 1;
+            previousstimuli(trial_num,1) = 1;
         elseif (randshape > 73.5 && randshape < 122.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(2,3,trial_num) = 1;
+            previousstimuli(trial_num,1) = 2;
         elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(3,3,trial_num) = 1;
+            previousstimuli(trial_num,1) = 3;
         end
     end
-    if previousstimuli == 1
-        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    elseif previousstimuli == 2
-        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
-    elseif previousstimuli == 3
-        actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
-    end     
+    if trial_num ~= 1
+        if previousstimuli(trial_num-1,1) == 1
+            actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
+        elseif previousstimuli(trial_num-1,1) == 2
+            actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
+        elseif previousstimuli(trial_num-1,1) == 3
+            actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
+        end     
+    end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
 end
 totalserials = 0;
@@ -191,9 +199,9 @@ for i = 1:number_of_trials
     end
     totalserials = totalserials + isserialdependence(1,i);
 end
-Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials));
+Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1));
 Serial_Dependence
-Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials));
+Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1));
 Accuracy
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
