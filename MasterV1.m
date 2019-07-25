@@ -3,6 +3,11 @@
 close all;
 clear all;
 
+Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
+dlg_title = 'Subject Information';
+num_lines = 1;
+subject_info = inputdlg(Info,dlg_title,num_lines);
+
 number_of_trials = 20;
 response = zeros(number_of_trials,1);
 s1 = [1,0,0;1,0,0;1,0,0];
@@ -39,8 +44,11 @@ for f = 1:147
     tmp_bmp = imread(['Morph' num2str(f) '.JPG']);
     tmp_bmp(:,:,4) = Mask_Plain;
     tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
-    Screen('DrawText', window, 'Loading...', x_center, y_center-25); % Write text to confirm loading of images
-    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), x_center, y_center+25); % Write text to confirm percentage complete
+    Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
+    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete    
+    Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
+    Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
+    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects teh original tumor looked most similar to.', x_center-648, y_center + 50) 
     Screen('Flip', window); % Display text -- loading stuff
 end
 
