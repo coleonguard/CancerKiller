@@ -91,7 +91,7 @@ for trial_num = 1:number_of_trials
 
     Screen('Flip', window);
     
-    WaitSecs(.2);
+    WaitSecs(.3);
     %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     
     DrawFormattedText(window,'Select which image the previously seen image is closest to?','center',100,[0 0 0]);
@@ -133,7 +133,7 @@ for trial_num = 1:number_of_trials
     end
 
     if whichone == 1
-        previousone = 1;
+        previousstimuli = 1;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num, 1) = 1; %1 entry in second column is for correct identification
             actualresponse(1,1,trial_num) = 1;
@@ -145,7 +145,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,1,trial_num) = 1;
         end
     elseif whichone == 2
-        previousone = 2;
+        previousstimuli = 2;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,2,trial_num) = 1;
@@ -157,7 +157,7 @@ for trial_num = 1:number_of_trials
             actualresponse(3,2,trial_num) = 1;
         end
     elseif whichone == 3
-        previousone = 3;
+        previousstimuli = 3;
         if (randshape > 24.5 && randshape < 73.5)
             response(trial_num,1) = 0; %0 entry in second column for incorrect identification
             actualresponse(1,3,trial_num) = 1;
@@ -169,11 +169,11 @@ for trial_num = 1:number_of_trials
             actualresponse(3,3,trial_num) = 1;
         end
     end
-    if previousresponse == 1
+    if previousstimuli == 1
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
-    elseif previousresponse == 2
+    elseif previousstimuli == 2
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
-    elseif previousresponse == 3
+    elseif previousstimuli == 3
         actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
     end     
     actualaccuracy = response(trial_num,1)+actualaccuracy;
