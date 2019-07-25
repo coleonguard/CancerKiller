@@ -60,7 +60,7 @@ for f = 1:147
     
     Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
     Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
-    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects teh original tumor looked most similar to.', x_center-648, y_center + 50) 
+    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects the original tumor looked most similar to.', x_center-648, y_center + 50) 
     Screen('Flip', window); % Display text -- loading stuff
 end
 
