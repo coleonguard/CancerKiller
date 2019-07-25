@@ -8,6 +8,10 @@ dlg_title = 'Subject Information';
 num_lines = 1;
 subject_info = inputdlg(Info,dlg_title,num_lines);
 
+existingData = load('subjectNumber.mat');
+subjectNumber = existingData.subjectNumber + 1;
+save('subjectNumber', 'subjectNumber');
+
 number_of_trials = 20;
 response = zeros(number_of_trials,1);
 s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
@@ -119,13 +123,13 @@ for trial_num = 1:number_of_trials
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
         if keyIsDown == 1
             keypressed = KbName(keyCode);
-            if strcmp(keypressed, '1!')
+            if strcmp(keypressed, '1')
                 tf = 1;
                 whichone = 1;
-            elseif strcmp(keypressed, '2@')
+            elseif strcmp(keypressed, '2')
                 tf = 1;
                 whichone = 2;
-            elseif strcmp(keypressed, '3#')
+            elseif strcmp(keypressed, '3')
                 tf = 1 ;
                 whichone = 3;
             end
@@ -196,4 +200,25 @@ Serial_Dependence
 Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials));
 Accuracy
 Screen('CloseAll');
-cd('../'); %Go back to original directory.
+
+%% Saving User's Results
+if isdir('Results')
+    cd('Results');
+elseif ~isdir('Results')
+    mkdir('Results');
+end
+
+nameID = char(upper(subject_info(1))); % Take the initials (first cell in subject_info) and make it uppercase so our formatting is consistent. Also convert the cell to a character array (a string)
+dirName = num2str(subjectNumber) + "_" + nameID; % Name the user's results directory with the format of "[subject number]-[initials]"
+
+if ~isdir(dirName)
+	mkdir(dirName);
+end
+
+cd(dirName);
+save('SubjectInfo.mat', 'subject_info');
+save('Results.mat',  'totalserials', 'actualaccuracy', 'number_of_trials');
+
+Screen('CloseAll');
+
+cd('../../'); %Go back to original directory.
