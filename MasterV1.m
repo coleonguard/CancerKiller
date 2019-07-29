@@ -26,7 +26,7 @@ previousstimuli = zeros(number_of_trials,1);
 comparativeincorrect = zeros(3,3);
 
 comparativediagonal1 = [1,0,0;0,0,0;0,0,0]; %the prev matrix of A shape
-comparativediagonal2 = [0,0,0; 0,1,0;0,0,0]; %the prev matrix of B shape
+comparativediagonal2 = [0,0,0;0,1,0;0,0,0]; %the prev matrix of B shape
 comparativediagonal3 = [0,0,0;0,0,0;0,0,1]; %the prev matrix of C shape
 
 isserialdependence = zeros(1,number_of_trials);
@@ -69,10 +69,7 @@ HideCursor();
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
 trial_num = 1;
-
 difficulty = [5.0,trial_num]; %first index is the current difficulty level, the second index is the trial number
-threshold = 0.67;
-
 % goes up 1 every 3 right and goes down 1 every 3 wrong (user overall
 % percentage)
 
@@ -89,17 +86,18 @@ for trial_num = 1:number_of_trials
     for cols = 1:window_h
         for rows = 1:window_w
             if greyorblack(rows,cols) == 255 %white (light)
-                greyorblack(rows,cols) = 75;
+                greyorblack(rows,cols) = 45+difficulty(1)*4;
             elseif greyorblack(rows, cols) == 0 %black (dark)
                 greyorblack(rows,cols) = 45; 
             end
         end
     end
-    mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
+    
+    mask_mem = resizem(greyorblack, [difficulty(1)/2 * rect(4), difficulty(1)/2 * rect(3)]);
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
-    background(:,:,4) = ones(2*rect(4),2*rect(3)) * 200;
+    background(:,:,4) = ones(difficulty(1)/2 * rect(4),difficulty(1)/2 * rect(3)) * 200;
     
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
 
@@ -212,13 +210,6 @@ for trial_num = 1:number_of_trials
         end     
     end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
-  
-  if actualaccuracy / trial_num < threshold && difficulty(1) >= 0
-	difficulty(1) = difficulty(1) - 0.1;
-  elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
-	difficulty(1) = difficulty(1) + 0.1;
-  end
-
 end
 
 totalserials = 0;
