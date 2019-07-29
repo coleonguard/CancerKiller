@@ -69,7 +69,10 @@ HideCursor();
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
 trial_num = 1;
-difficulty = [0,trial_num]; %first index is the current difficulty level, the second index is the trial number
+
+difficulty = [5.0,trial_num]; %first index is the current difficulty level, the second index is the trial number
+threshold = 0.67;
+
 % goes up 1 every 3 right and goes down 1 every 3 wrong (user overall
 % percentage)
 
@@ -209,6 +212,13 @@ for trial_num = 1:number_of_trials
         end     
     end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
+  
+  if actualaccuracy / trial_num < threshold && difficulty(1) >= 0
+	difficulty(1) = difficulty(1) - 0.1;
+  elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
+	difficulty(1) = difficulty(1) + 0.1;
+  end
+
 end
 
 totalserials = 0;
