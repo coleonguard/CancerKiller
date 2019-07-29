@@ -210,6 +210,13 @@ for trial_num = 1:number_of_trials
         end     
     end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
+
+     if actualaccuracy / trial_num < threshold && difficulty(1) >= 0
+	difficulty(1) = difficulty(1) - 0.1;
+     elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
+	difficulty(1) = difficulty(1) + 0.1;
+     end
+
 end
 
 totalserials = 0;
