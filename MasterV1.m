@@ -14,7 +14,7 @@ existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
-number_of_trials = 5;
+number_of_trials = 10;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
 s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
@@ -68,7 +68,10 @@ HideCursor();
 
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
-
+trial_num = 1;
+difficulty = [0,trial_num]; %first index is the current difficulty level, the second index is the trial number
+% goes up 1 every 3 right and goes down 1 every 3 wrong (user overall
+% percentage)
 
 for trial_num = 1:number_of_trials
     
@@ -78,7 +81,6 @@ for trial_num = 1:number_of_trials
     shape_num = 147; % total number of stimuli
     
     randshape = randi(shape_num); % making sure the shape is different each time (random)
-    
     % changing the colors of the noise to be closer to the background color of the image
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
@@ -211,13 +213,13 @@ end
 
 totalserials = 0;
 for i = 1:number_of_trials
-    if actualresponse(:,:,i) == comparativeincorrect
+    if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli 
         isserialdependence(1,i) = 0;
     else
         %the user answers matches the correct answer key
-        if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:))))
+        if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:)))) %if the answer is correct
             isserialdependence(1,i) = 0;
-        else
+        else %if the answer is similar and is incorrect
             isserialdependence(1,i) = 1;
         end
     end
