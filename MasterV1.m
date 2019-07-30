@@ -215,8 +215,10 @@ for trial_num = 1:number_of_trials
      elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
 	difficulty(1) = difficulty(1) + 0.1;
      end
-
-     WaitSecs(delayTime);
+ 
+     if delayTime
+	WaitSecs(randi([0 4]) * 8); % Temporal tuning
+     end
      
 end
 
