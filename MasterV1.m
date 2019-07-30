@@ -1,7 +1,7 @@
 %% Setting up
-
 close all;
 clear all;
+global delayTime; % Retrieving the global variable value from our app GUI
 
 %% Obtaining User Input
 
