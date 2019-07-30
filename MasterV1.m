@@ -1,5 +1,7 @@
 %% Setting up
 close all;
+clear all;
+global delayTime; % Retrieving the global variable value from our app GUI
 
 %% Obtaining User Input
 
@@ -55,11 +57,11 @@ for f = 1:147
     tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
     
     Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
-    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete    
+    Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete
     
     Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
     Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
-    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects the original tumor looked most similar to.', x_center-648, y_center + 50) 
+    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects the original tumor looked most similar to.', x_center-648, y_center + 50)
     Screen('Flip', window); % Display text -- loading stuff
 end
 
@@ -79,15 +81,20 @@ for trial_num = 1:number_of_trials
     random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
     shape_num = 147; % total number of stimuli
     
-    randshape = randi(shape_num); % making sure the shape is different each time (random)
-    % changing the colors of the noise to be closer to the background color of the image
+    ifblank = randi(4);
+    if ifblank == 4
+        randshape = 0;
+    else
+        randshape = randi(shape_num); % making sure the shape is different each time (random)
+        % changing the colors of the noise to be closer to the background color of the image
+    end
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
         for rows = 1:window_w
             if greyorblack(rows,cols) == 255 %white (light)
                 greyorblack(rows,cols) = 45+difficulty(1)*4;
             elseif greyorblack(rows, cols) == 0 %black (dark)
-                greyorblack(rows,cols) = 45; 
+                greyorblack(rows,cols) = 45;
             end
         end
     end
@@ -99,11 +106,12 @@ for trial_num = 1:number_of_trials
     background(:,:,4) = ones(ceil(difficulty(1)/2) * rect(4),ceil(difficulty(1)/2) * rect(3)) * 200;
     
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
-
-    Screen('DrawTexture', window, tid(randshape), [], ...
-        [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
-        Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
-
+    if ifblank ~=4
+        Screen('DrawTexture', window, tid(randshape), [], ...
+            [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
+    end
+    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+    
     Screen('Flip', window);
     
     WaitSecs(.3);
@@ -150,55 +158,96 @@ for trial_num = 1:number_of_trials
             elseif strcmp(keypressed, '3#')
                 tf = 1 ;
                 whichone = 3;
+            elseif str(keypressed, '4$')
+                tf = 1;
+                whichone = 4;
             end
         end
     end
-
+    
     if whichone == 1
-        if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
-            actualresponse(1,1,trial_num) = 1;
-            previousstimuli(trial_num,1) = 1;
-        elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(2,1,trial_num) = 1;
-            previousstimuli(trial_num,1) = 2;
-        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(3,1,trial_num) = 1;
-            previousstimuli(trial_num,1) = 3;
+        if ifblank ~= 4
+            if (randshape > 24.5 && randshape < 73.5)
+                response(trial_num, 1) = 1; %1 entry in first column is for correct identification
+                actualresponse(1,1,trial_num) = 1;
+                previousstimuli(trial_num,1) = 1;
+            elseif (randshape > 73.5 && randshape < 122.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(2,1,trial_num) = 1;
+                previousstimuli(trial_num,1) = 2;
+            elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(3,1,trial_num) = 1;
+                previousstimuli(trial_num,1) = 3;
+            end
+        else
+            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
+            actualresponse(:,:,trial_num) = 1;
+            previousstimuli(trial_num,1) = 4;
         end
     elseif whichone == 2
-        if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(1,2,trial_num) = 1;
-            previousstimuli(trial_num,1) = 1;
-        elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
-            actualresponse(2,2,trial_num) = 1;
-            previousstimuli(trial_num,1) = 2;
-        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(3,2,trial_num) = 1;
-            previousstimuli(trial_num,1) = 3;
+        if ifblank ~= 4
+            if (randshape > 24.5 && randshape < 73.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(1,2,trial_num) = 1;
+                previousstimuli(trial_num,1) = 1;
+            elseif (randshape > 73.5 && randshape < 122.5)
+                response(trial_num, 1) = 1; %1 entry in first column is for correct identification
+                actualresponse(2,2,trial_num) = 1;
+                previousstimuli(trial_num,1) = 2;
+            elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(3,2,trial_num) = 1;
+                previousstimuli(trial_num,1) = 3;
+            end
+        else
+            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
+            actualresponse(:,:,trial_num) = 1;
+            previousstimuli(trial_num,1) = 4;
         end
     elseif whichone == 3
-        if (randshape > 24.5 && randshape < 73.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(1,3,trial_num) = 1;
-            previousstimuli(trial_num,1) = 1;
-        elseif (randshape > 73.5 && randshape < 122.5)
-            response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-            actualresponse(2,3,trial_num) = 1;
-            previousstimuli(trial_num,1) = 2;
-        elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+        if ifblank ~= 4
+            if (randshape > 24.5 && randshape < 73.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(1,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 1;
+            elseif (randshape > 73.5 && randshape < 122.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(2,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 2;
+            elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+                response(trial_num, 1) = 1; %1 entry in first column is for correct identification
+                actualresponse(3,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 3;
+            end
+        else
+            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
+            actualresponse(:,:,trial_num) = 1;
+            previousstimuli(trial_num,1) = 4;
+        end
+    elseif whichone == 4
+        if ifblank ~= 4
+            if (randshape > 24.5 && randshape < 73.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(1,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 1;
+            elseif (randshape > 73.5 && randshape < 122.5)
+                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
+                actualresponse(2,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 2;
+            elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
+                response(trial_num, 1) = 0; %1 entry in first column is for correct identification
+                actualresponse(3,3,trial_num) = 1;
+                previousstimuli(trial_num,1) = 3;
+            end
+        else
             response(trial_num, 1) = 1; %1 entry in first column is for correct identification
-            actualresponse(3,3,trial_num) = 1;
-            previousstimuli(trial_num,1) = 3;
+            actualresponse(:,:,trial_num) = 1;
+            previousstimuli(trial_num,1) = 4;
         end
     end
     
-     %% compares the user response to the response biased towards A, B, or C shape
+    %% compares the user response to the response biased towards A, B, or C shape
     if trial_num ~= 1
         if previousstimuli(trial_num-1,1) == 1
             actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s1;
@@ -206,25 +255,24 @@ for trial_num = 1:number_of_trials
             actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s2;
         elseif previousstimuli(trial_num-1,1) == 3
             actualresponse(:,:,trial_num) = actualresponse(:,:,trial_num).*s3;
-        end     
+        end
     end
     actualaccuracy = response(trial_num,1)+actualaccuracy;
-
-     if actualaccuracy / trial_num < threshold && difficulty(1) >= 0
-	difficulty(1) = difficulty(1) - 0.1;
-     elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
-	difficulty(1) = difficulty(1) + 0.1;
-     end
- 
-     if delayTime
-	WaitSecs(randi([0 4]) * 8); % Temporal tuning
-     end
-     
+    
+    if actualaccuracy / trial_num < threshold && difficulty(1) >= 0
+        difficulty(1) = difficulty(1) - 0.1;
+    elseif actualaccuracy / trial_num > threshold && difficulty(1) <= 10
+        difficulty(1) = difficulty(1) + 0.1;
+    end
+    
 end
 
 totalserials = 0;
 for i = 1:number_of_trials
-    if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli 
+    
+    if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli
+        isserialdependence(1,i) = 0;
+    elseif actualresponse(:,:,i) == ones(3,3)
         isserialdependence(1,i) = 0;
     else
         %the user answers matches the correct answer key
@@ -254,7 +302,7 @@ nameID = char(upper(subject_info(1))); % Take the initials (first cell in subjec
 dirName = num2str(subjectNumber) + "_" + nameID; % Name the user's results directory with the format of "[subject number]-[initials]"
 
 if ~isdir(dirName)
-	mkdir(dirName);
+    mkdir(dirName);
 end
 
 cd(dirName);
@@ -265,4 +313,3 @@ save('Results.mat',  'totalserials', 'actualaccuracy', 'number_of_trials');
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
 cd('../');
-disp(delayTime);
