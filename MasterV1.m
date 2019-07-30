@@ -35,7 +35,7 @@ actualaccuracy = 0;
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
-[window, rect] = Screen('OpenWindow', 0,[128 128 128], [0,0,300,300]);
+[window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
 HideCursor();
