@@ -15,14 +15,12 @@ classdef gamified_app < matlab.apps.AppBase
 
         % Button pushed function: NormalButton
         function NormalButtonPushed(app, event)
-            global delayTime;
-	    delayTime = 0;
+	        delayTime = 0;
             MasterV1;
         end
 
         % Button pushed function: DelayedButton
         function DelayedButtonPushed(app, event)
-	    global delayTime;
             delayTime = 3;
             MasterV1;
         end
