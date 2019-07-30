@@ -14,6 +14,7 @@ existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
+threshold = .66;
 number_of_trials = 10;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
@@ -34,7 +35,7 @@ actualaccuracy = 0;
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
-[window, rect] = Screen('OpenWindow', 0,[128 128 128]);
+[window, rect] = Screen('OpenWindow', 0,[128 128 128], [0,0,300,300]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
 HideCursor();
@@ -93,11 +94,11 @@ for trial_num = 1:number_of_trials
         end
     end
     
-    mask_mem = resizem(greyorblack, [difficulty(1)/2 * rect(4), difficulty(1)/2 * rect(3)]);
+    mask_mem = resizem(greyorblack, [ceil(difficulty(1)/2) * rect(4), ceil(difficulty(1)/2) * rect(3)]);
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
-    background(:,:,4) = ones(difficulty(1)/2 * rect(4),difficulty(1)/2 * rect(3)) * 200;
+    background(:,:,4) = ones(ceil(difficulty(1)/2) * rect(4),ceil(difficulty(1)/2) * rect(3)) * 200;
     
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
 
