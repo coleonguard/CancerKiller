@@ -1,7 +1,5 @@
 %% Setting up
 close all;
-clear all;
-global delayTime; % Retrieving the global variable value from our app GUI
 
 %% Obtaining User Input
 
@@ -218,6 +216,8 @@ for trial_num = 1:number_of_trials
 	difficulty(1) = difficulty(1) + 0.1;
      end
 
+     WaitSecs(delayTime);
+     
 end
 
 totalserials = 0;
@@ -263,3 +263,4 @@ save('Results.mat',  'totalserials', 'actualaccuracy', 'number_of_trials');
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
 cd('../');
+disp(delayTime);
