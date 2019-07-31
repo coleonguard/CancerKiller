@@ -12,26 +12,17 @@ existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
-threshold = .66;
 number_of_trials = 10;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
-s1 = [1,0,0;1,0,0;1,0,0]; % Matrix for when the first main shape is shown
-s2 = [0,1,0;0,1,0;0,1,0]; % Matrix for when the second main shape is shown
-s3 = [0,0,1;0,0,1;0,0,1];% Matrix for when the third main shape is shown
+overtimeaccuracy = zeros(number_of_trials);
+
+overtimeshapes = zeros(2,number_of_trials);
 
 locations = zeros(number_of_trials, 2);
 
-actualresponse = zeros(3,3,number_of_trials);%what the user actually responded
-previousstimuli = zeros(number_of_trials,1);
-comparativeincorrect = zeros(3,3);
+wasserialdependence = zeros(number_of_trials) 
 
-comparativediagonal1 = [1,0,0;0,0,0;0,0,0]; %the prev matrix of A shape
-comparativediagonal2 = [0,0,0;0,1,0;0,0,0]; %the prev matrix of B shape
-comparativediagonal3 = [0,0,0;0,0,0;0,0,1]; %the prev matrix of C shape
-
-isserialdependence = zeros(1,number_of_trials);
-actualaccuracy = 0;
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
@@ -58,9 +49,9 @@ for f = 1:147
     Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
     Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete
     
-    Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
+    Screen('DrawText', window, 'Hello! Welcome to the Tumor Localization Experiment.', x_center-238, y_center)
     Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
-    Screen('DrawText', window, 'After the random shape has been displayed, please identify which of the 3 objects the original tumor looked most similar to.', x_center-648, y_center + 50)
+    Screen('DrawText', window, 'After the random shape has been displayed, please identify the location at which it was shown.', x_center-648, y_center + 50)
     Screen('Flip', window); % Display text -- loading stuff
 end
 
@@ -119,30 +110,29 @@ for trial_num = 1:number_of_trials
         locations(trial_num, 1) = x;
         locations(trial_num, 2) = y;
     end
-    
-    
-    totalserials = 0;
-    for i = 1:number_of_trials
-        
-        if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli
-            isserialdependence(1,i) = 0;
-        elseif actualresponse(:,:,i) == ones(3,3)
-            isserialdependence(1,i) = 0;
-        else
-            %the user answers matches the correct answer key
-            if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:)))) %if the answer is correct
-                isserialdependence(1,i) = 0;
-            else %if the answer is similar and is incorrect
-                isserialdependence(1,i) = 1;
-            end
-        end
-        totalserials = totalserials + isserialdependence(1,i);
+    overtimeshapes(1,trial_num) = random_location(1);
+    overtimeshapes(2,trial_num) = random_location(2);
+end
+for q = 1:number_of_trials
+    if ((locations(q, 1) > overtimeshapes(1,q)-img_w/2) && (locations(q, 1) < overtimeshapes(1,q)+img_w/2)) && ((locations(q, 2) > overtimeshapes(2,q)-img_h/2) && (locations(q, 2) < random_location(2,q)+img_h/2))
+        overtimeaccuracy(q) = 1; %1 for correct
+        wasserialdependence = 0;
+    else
+        overtimeaccuracy(q) = 0; %0 for incorrect
+        %doing distance analysis to determine whether or not serial
+        %dependence (and to what extent) was present -- wasserialdependence
+        %will have 0 if no serial dependence and 1 if max serial dependence
+        X = [overtimeshapes(1,1,q-1),overtimeshapes(1,2,q-1);locations(q,1),locations(q,2)];
+        a = pdist(X,'euclidean')
+        Y = [overtimeshapes(1,1,q),overtimeshapes(1,2,q);overtimeshapes(1,1,q),overtimeshapes(1,2,q-1)]
+        c = pdist(Y,'euclidean')
+        wasserialdependence(q) = 1-a/(c-((img_w/2+img_h/2)/2));
     end
 end
-Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
-Serial_Dependence
-Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
-Accuracy
+% Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
+% Serial_Dependence
+% Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
+% Accuracy
 
 %% Saving User's Results
 cd('../');
