@@ -33,7 +33,7 @@ actualaccuracy = 0;
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
-[window, rect] = Screen('OpenWindow', 0,[128 128 128]);
+[window, rect] = Screen('OpenWindow', 0,[128 128 128], [0,0,300,300]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
 window_w = rect(3); % defining size of screen
@@ -42,7 +42,7 @@ window_h = rect(4);
 x_center = window_w/2;
 y_center = window_h/2;
 
-cd('../shape_Stimuli');
+cd('shape_Stimuli');
 
 %% showing random morph image behind noise
 
@@ -101,7 +101,7 @@ for trial_num = 1:number_of_trials
 
     tumorClass = randi(3) * 49; % Choose one of the three tumor classes randomly for each prompt for each trial
     tumorClasses(trial_num) = tumorClass;
-
+    Screen('Flip', window);
     tumorClassLoc = [x_center-img_w/2, y_center-img_h/2, x_center+img_w/2, y_center+img_h/2];    
     Screen('DrawTexture', window, tid(tumorClass), [], tumorClassLoc);
     Screen('Flip', window);
@@ -130,12 +130,11 @@ for trial_num = 1:number_of_trials
     while ~clickedYet
         [keyIsDown, secs, keyCode] = KbCheck;
         
-        if any(keyIsDown) && (keyCode == 11 || keyCode == 20)
-	    searchTimes(trial_num) = toc;
+        if keyIsDown == 1 && (keyCode(11) == 1 || keyCode(20) == 1)
+	    reactionTimes(trial_num) = toc;
 	    yesOrNo(trial_num) = KbName(keyCode);
-            clickedYet = true; 
+        clickedYet = true;
         end
-
     end
        
 end
