@@ -68,9 +68,6 @@ end
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
 trial_num = 1;
-difficulty = [5.0,trial_num]; %first index is the current difficulty level, the second index is the trial number
-% goes up 1 every 3 right and goes down 1 every 3 wrong (user overall
-% percentage)
 
 for trial_num = 1:number_of_trials
     HideCursor();
@@ -78,77 +75,69 @@ for trial_num = 1:number_of_trials
     random_location(1) = randi([ceil(img_w/2) floor(window_w-(img_w/2))]);
     random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
     shape_num = 147; % total number of stimuli
+    randshape = randi(shape_num); % making sure the shape is different each time (random)
+    % changing the colors of the noise to be closer to the background color of the image
     
-    ifblank = randi(4);
-    if ifblank == 4
-        randshape = 0;
-    else
-        randshape = randi(shape_num); % making sure the shape is different each time (random)
-        % changing the colors of the noise to be closer to the background color of the image
-    end
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
         for rows = 1:window_w
             if greyorblack(rows,cols) == 255 %white (light)
-                greyorblack(rows,cols) = 45+difficulty(1)*4;
+                greyorblack(rows,cols) = 75;
             elseif greyorblack(rows, cols) == 0 %black (dark)
                 greyorblack(rows,cols) = 45;
             end
         end
     end
-    
-    mask_mem = resizem(greyorblack, [ceil(difficulty(1)/2) * rect(4), ceil(difficulty(1)/2) * rect(3)]);
+    mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
-    background(:,:,4) = ones(ceil(difficulty(1)/2) * rect(4),ceil(difficulty(1)/2) * rect(3)) * 200;
+    background(:,:,4) = ones(2 * rect(4),2 * rect(3)) * 200;
     
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
-    if ifblank ~=4
-        Screen('DrawTexture', window, tid(randshape), [], ...
-            [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
-    end
+    Screen('DrawTexture', window, tid(randshape), [], ...
+        [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
     Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
     Screen('Flip', window);
-
-    WaitSecs(0.3);
-ShowCursor()
- Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
-    Screen('Flip', window);    
-
+    WaitSecs(0.3);
+    ShowCursor()
+    Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
+    
+    Screen('Flip', window);
+    
     %% Getting User Clicks
     clickedYet = false;
     while ~clickedYet
-	[x, y, clicks] = GetMouse;
-	
-	if any(clicks)
-		clickedYet = true;
-	end
-		
-	locations(trial_num, 1) = x;
-	locations(trial_num, 2) = y;
-    end
-    
-end
-
-totalserials = 0;
-for i = 1:number_of_trials
-    
-    if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli
-        isserialdependence(1,i) = 0;
-    elseif actualresponse(:,:,i) == ones(3,3)
-        isserialdependence(1,i) = 0;
-    else
-        %the user answers matches the correct answer key
-        if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:)))) %if the answer is correct
-            isserialdependence(1,i) = 0;
-        else %if the answer is similar and is incorrect
-            isserialdependence(1,i) = 1;
+        [x, y, clicks] = GetMouse;
+        
+        if any(clicks)
+            clickedYet = true;
         end
+        
+        locations(trial_num, 1) = x;
+        locations(trial_num, 2) = y;
     end
-    totalserials = totalserials + isserialdependence(1,i);
+    
+    
+    totalserials = 0;
+    for i = 1:number_of_trials
+        
+        if actualresponse(:,:,i) == comparativeincorrect %if the answer is not similar to the previous stimuli
+            isserialdependence(1,i) = 0;
+        elseif actualresponse(:,:,i) == ones(3,3)
+            isserialdependence(1,i) = 0;
+        else
+            %the user answers matches the correct answer key
+            if ((isequal(actualresponse(:,:,i), comparativediagonal1(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal2(:,:))) || (isequal(actualresponse(:,:,i), comparativediagonal3(:,:)))) %if the answer is correct
+                isserialdependence(1,i) = 0;
+            else %if the answer is similar and is incorrect
+                isserialdependence(1,i) = 1;
+            end
+        end
+        totalserials = totalserials + isserialdependence(1,i);
+    end
 end
 Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
 Serial_Dependence
