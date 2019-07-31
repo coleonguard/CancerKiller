@@ -111,7 +111,13 @@ for trial_num = 1:number_of_trials
     Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
     Screen('Flip', window);
+
+    WaitSecs(0.3);
+
+ Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
+    Screen('Flip', window);    
+
     %% Getting User Clicks
     clickedYet = false;
     while ~clickedYet
