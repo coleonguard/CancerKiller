@@ -118,8 +118,8 @@ for trial_num = 1:number_of_trials
 	[x, y, clicks] = GetMouse;
 	
 	if any(clicks)
-		clickdYet = true;
-	end;
+		clickedYet = true;
+	end
 		
 	locations(trial_num, 1) = x;
 	locations(trial_num, 2) = y;
