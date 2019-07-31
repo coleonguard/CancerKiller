@@ -33,7 +33,7 @@ actualaccuracy = zeros(1,number_of_trials);
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
-[window, rect] = Screen('OpenWindow', 0,[128 128 128], [0,0,300,300]);
+[window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
 window_w = rect(3); % defining size of screen
@@ -42,10 +42,10 @@ window_h = rect(4);
 x_center = window_w/2;
 y_center = window_h/2;
 
-cd('shape_Stimuli');
+cd('../shape_Stimuli');
 
 %% showing random morph image behind noise
-
+HideCursor();
 for f = 1:147
     Mask_Plain = imread([num2str(f) 'mask.JPG']); %Load black circle on white background.
     Mask_Plain = 255-Mask_Plain(:,:,1); %use first layer
@@ -58,8 +58,8 @@ for f = 1:147
     
     Screen('DrawText', window, 'Hello! Welcome to the Tumor Detection Experiment.', x_center-238, y_center)
     Screen('DrawText', window, 'In the following screen, a random shape representing a tumor will be displayed.', x_center-378, y_center + 25)
-    Screen('DrawText', window, 'After the random shape has been displayed, another tumor will be displayed.', x_center-648, y_center + 50)
-    Screen('DrawText', window, 'Please click 1 if the two tumors were the same, and 0 if they were NOT the same!', x_center - 668, y_center + 75)
+    Screen('DrawText', window, 'After the random shape has been displayed, another tumor will be displayed.', x_center-388, y_center + 50)
+    Screen('DrawText', window, 'Please click 1 if the two tumors were the same, and 0 if they were NOT the same!', x_center - 393, y_center + 75)
     Screen('Flip', window); % Display text -- loading stuff
 end
 
@@ -97,7 +97,7 @@ for trial_num = 1:number_of_trials
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
-    background(:,:,4) = ones(2 * rect(4),2 * rect(3)) * 200;
+    background(:,:,4) = ones(2 * rect(4),2 * rect(3)) * 230;
 
     tumorClass = randi(3) * 49; % Choose one of the three tumor classes randomly for each prompt for each trial
     tumorClasses(trial_num) = tumorClass;
