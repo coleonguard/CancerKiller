@@ -15,7 +15,7 @@ save('subjectNumber', 'subjectNumber');
 number_of_trials = 5;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
-overtimeaccuracy = zeros(number_of_trials);
+overtimeaccuracy = zeros(1, number_of_trials);
 
 overtimeshapes = zeros(2,number_of_trials);
 
@@ -92,7 +92,7 @@ for trial_num = 1:number_of_trials
     
     Screen('Flip', window);
     
-    WaitSecs(0.3);
+    WaitSecs(0.2);
     ShowCursor()
     Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
