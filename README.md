@@ -2,9 +2,8 @@
  - [x] Tumor Classification
  - [ ] Tumor Detection
  - [ ] Tumor Localization
-  - make tumor disappear after ms of display
-  - hidecursor until disappearance
   - get ride of serial dependence crap analysis
   - add mouse click distance analysis
   - get rid of difficulty stuff
+  - get rid of fourth option of no image displayed
  - [ ] Tumor Search Times
