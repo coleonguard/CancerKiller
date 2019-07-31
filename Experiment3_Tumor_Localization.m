@@ -73,7 +73,7 @@ difficulty = [5.0,trial_num]; %first index is the current difficulty level, the 
 % percentage)
 
 for trial_num = 1:number_of_trials
-    
+    HideCursor();
     random_location = [0,0]; %making a random location for the image to be displayed at
     random_location(1) = randi([ceil(img_w/2) floor(window_w-(img_w/2))]);
     random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
@@ -113,7 +113,7 @@ for trial_num = 1:number_of_trials
     Screen('Flip', window);
 
     WaitSecs(0.3);
-
+ShowCursor()
  Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
     Screen('Flip', window);    
