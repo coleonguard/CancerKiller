@@ -12,7 +12,7 @@ existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
-number_of_trials = 10;
+number_of_trials = 5;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
 overtimeaccuracy = zeros(number_of_trials);
@@ -21,7 +21,7 @@ overtimeshapes = zeros(2,number_of_trials);
 
 locations = zeros(number_of_trials, 2);
 
-wasserialdependence = zeros(number_of_trials) 
+wasserialdependence = zeros(1,number_of_trials);
 
 %% Load Screens
 
@@ -114,19 +114,27 @@ for trial_num = 1:number_of_trials
     overtimeshapes(2,trial_num) = random_location(2);
 end
 for q = 1:number_of_trials
-    if ((locations(q, 1) > overtimeshapes(1,q)-img_w/2) && (locations(q, 1) < overtimeshapes(1,q)+img_w/2)) && ((locations(q, 2) > overtimeshapes(2,q)-img_h/2) && (locations(q, 2) < random_location(2,q)+img_h/2))
+    if ((locations(q, 1) > overtimeshapes(1,q)-img_w/2) && (locations(q, 1) < overtimeshapes(1,q)+img_w/2)) && ((locations(q, 2) > overtimeshapes(2,q)-img_h/2) && (locations(q, 2) < overtimeshapes(2,q)+img_h/2))
         overtimeaccuracy(q) = 1; %1 for correct
-        wasserialdependence = 0;
+        wasserialdependence(1,q) = 0;
     else
         overtimeaccuracy(q) = 0; %0 for incorrect
         %doing distance analysis to determine whether or not serial
         %dependence (and to what extent) was present -- wasserialdependence
         %will have 0 if no serial dependence and 1 if max serial dependence
-        X = [overtimeshapes(1,1,q-1),overtimeshapes(1,2,q-1);locations(q,1),locations(q,2)];
-        a = pdist(X,'euclidean')
-        Y = [overtimeshapes(1,1,q),overtimeshapes(1,2,q);overtimeshapes(1,1,q),overtimeshapes(1,2,q-1)]
-        c = pdist(Y,'euclidean')
-        wasserialdependence(q) = 1-a/(c-((img_w/2+img_h/2)/2));
+        if q>=2
+            X = [overtimeshapes(1,q-1),overtimeshapes(2,q-1);locations(q,1),locations(q,2)];
+            a = pdist(X,'euclidean');
+            Y = [overtimeshapes(1,q),overtimeshapes(2,q);overtimeshapes(1,q-1),overtimeshapes(2,q-1)];
+            c = pdist(Y,'euclidean');
+            if a<c
+                wasserialdependence(1,q) = 1-(a/(c-((img_w/2+img_h/2)/2))); %normalization of the degree of serial dependence
+            else
+                wasserialdependence(1,q) = 0;
+            end
+        else
+            wasserialdependence(1,q) = 0;
+        end
     end
 end
 % Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
@@ -153,7 +161,7 @@ end
 cd(dirName);
 number_of_trials = number_of_trials - 1; % First trial can't be affected by serial dependence
 save('SubjectInfo.mat', 'subject_info');
-save('Results.mat',  'totalserials', 'actualaccuracy', 'number_of_trials');
+save('Results.mat',  'wasserialdependence', 'overtimeaccuracy', 'number_of_trials');
 
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
