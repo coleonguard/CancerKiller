@@ -38,7 +38,6 @@ Screen('Preference', 'SkipSyncTests', 1);
 [window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
 
-HideCursor();
 window_w = rect(3); % defining size of screen
 window_h = rect(4);
 
@@ -65,7 +64,6 @@ for f = 1:147
     Screen('Flip', window); % Display text -- loading stuff
 end
 
-HideCursor();
 
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
