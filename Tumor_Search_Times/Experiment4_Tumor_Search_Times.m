@@ -29,7 +29,7 @@ comparativediagonal2 = [0,0,0;0,1,0;0,0,0]; %the prev matrix of B shape
 comparativediagonal3 = [0,0,0;0,0,0;0,0,1]; %the prev matrix of C shape
 
 isserialdependence = zeros(1,number_of_trials);
-actualaccuracy = 0;
+actualaccuracy = zeros(1,number_of_trials);
 %% Load Screens
 
 Screen('Preference', 'SkipSyncTests', 1);
@@ -107,7 +107,7 @@ for trial_num = 1:number_of_trials
     Screen('Flip', window);
     WaitSecs(1);
 
-    tumorShown = randi(3) * 49; % Choose one of the three tumor classes randomly to show in the screens with noise (which user reacts to)
+    tumorShown = randi(147); % Choose one of the three tumor classes randomly to show in the screens with noise (which user reacts to)
     tumorsShown(trial_num) = tumorShown;
 
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
@@ -126,25 +126,64 @@ for trial_num = 1:number_of_trials
     tic; % Start a stopwatch to get reaction times
 
     %% Getting User Feedback
-    clickedYet = false;
-    while ~clickedYet
-        [keyIsDown, secs, keyCode] = KbCheck;
-        
-        if keyIsDown == 1 && (keyCode(11) == 1 || keyCode(20) == 1)
-	    reactionTimes(trial_num) = toc;
-	    yesOrNo(trial_num) = KbName(keyCode);
-        clickedYet = true;
+     tf = 0; %user clicks = 1 user didn't click = 0
+    while tf == 0
+        [keyIsDown, secs, keyCode, deltaSecs] = KbCheck();
+        if keyIsDown == 1
+            keypressed = KbName(keyCode);
+            if strcmp(keypressed, '1!')
+                tf = 1;
+                yesOrNo(trial_num) = 1;
+                reactionTimes(trial_num)= toc;
+            elseif strcmp(keypressed, '0)')
+                tf = 1;
+                yesOrNo(trial_num) = 0;
+                reactionTimes(trial_num)=toc;
+            end
         end
     end
        
 end
-Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
-Serial_Dependence
-Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
-Accuracy
+iscorrectshown = zeros(1,number_of_trials);
+for q=1:number_of_trials
+    if (tumorClasses(q) == 49) && (tumorsShown(q)>24.5 && tumorsShown(q)<73.5)
+        iscorrectshown(1,q) = 1;
+    elseif (tumorClasses(q) == 98) && (tumorsShown(q)>73.5 && tumorsShown(q)<122.5)
+        iscorrectshown(1,q) = 1;
+    elseif (tumorClasses(q) == 147) && ((tumorsShown(q)>122.5 && tumorsShown(q)<0)||(tumorsShown(q)>0 && tumorsShown(q)<24.5))
+        iscorrectshown(1,q) = 1;
+    end
+    if ((iscorrectshown(1,q) == 1) && (yesOrNo(q) == 1)) || ((iscorrectshown(1,q) == 0) && (yesOrNo(q) == 0))
+        actualaccuracy(1,q) = 1; % correct respons -> 1 in actualaccuracy
+        isserialdependence(1,q) = 0; % no serial dependence
+    else
+        actualaccuracy(1,q) = 0;
+        if q>=2
+            if ((iscorrectshown(1,q-1) == 1) && (yesOrNo(q) == 1)) || ((iscorrectshown(1,q-1) == 0) && (yesOrNo(q) == 0))
+                isserialdependence(1,q) = 1; %there is serial dependence
+            else
+                isserialdependence(1,q) = 0; %no serial dependence, however
+            end
+        end
+    end
+end
+
+
+
+
+% Serial_Dependence = strcat(num2str(totalserials), '/', num2str(number_of_trials-1)); %shows the number w/ serial dependence
+% Serial_Dependence
+% Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
+% Accuracy
 
 %% Saving User's Results
-cd('../Tumor_Search_Times');
+
+if isdir('Tumor_Search_Times')
+    cd('Tumor_Search_Times');
+elseif ~isdir('Tumor_Search_Times')
+    mkdir('Tumor_Search_Times');
+    cd('Tumor_Search_Times');
+end
 if isdir('Results')
     cd('Results');
 elseif ~isdir('Results')
@@ -162,7 +201,7 @@ end
 cd(dirName);
 number_of_trials = number_of_trials - 1; % First trial can't be affected by serial dependence
 save('SubjectInfo.mat', 'subject_info');
-save('Results.mat',  'reactionTimes', 'tumorClasses', 'tumorsShown', 'yesOrNo');
+save('Results.mat',  'reactionTimes', 'tumorClasses', 'tumorsShown', 'isserialdependence', 'actualaccuracy');
 
 Screen('CloseAll');
 cd('../../'); %Go back to original directory.
