@@ -81,13 +81,9 @@ for trial_num = 1:number_of_trials
     random_location(2) = randi([ceil(img_h/2) floor(window_h-(img_h/2))]);
     shape_num = 147; % total number of stimuli
     
-    ifblank = randi(4);
-    if ifblank == 4
-        randshape = 0;
-    else
-        randshape = randi(shape_num); % making sure the shape is different each time (random)
-        % changing the colors of the noise to be closer to the background color of the image
-    end
+   
+    randshape = randi(shape_num); % making sure the shape is different each time (random)
+    % changing the colors of the noise to be closer to the background color of the image
     greyorblack = round(rand(window_w, window_h)) * 255;
     for cols = 1:window_h
         for rows = 1:window_w
@@ -103,13 +99,11 @@ for trial_num = 1:number_of_trials
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
-    background(:,:,4) = ones(ceil(difficulty(1)/2) * rect(4),ceil(difficulty(1)/2) * rect(3)) * 200;
+    background(:,:,4) = ones(ceil(difficulty(1)/2) * rect(4),ceil(difficulty(1)/2) * rect(3)) * 200; %200 transparency
     
     mask_mem_Tex = Screen('MakeTexture', window, background);  % make the mask_memory texture
-    if ifblank ~=4
-        Screen('DrawTexture', window, tid(randshape), [], ...
-            [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
-    end
+    Screen('DrawTexture', window, tid(randshape), [], ...
+        [random_location(1)-img_w/2 random_location(2)-img_h/2 random_location(1)+img_w/2 random_location(2)+img_h/2]); % displaying images centered art the random point
     Screen('DrawTexture',window, mask_mem_Tex); % draw the noise texture
     
     Screen('Flip', window);
@@ -158,15 +152,11 @@ for trial_num = 1:number_of_trials
             elseif strcmp(keypressed, '3#')
                 tf = 1 ;
                 whichone = 3;
-            elseif str(keypressed, '4$')
-                tf = 1;
-                whichone = 4;
             end
         end
     end
     
     if whichone == 1
-        if ifblank ~= 4
             if (randshape > 24.5 && randshape < 73.5)
                 response(trial_num, 1) = 1; %1 entry in first column is for correct identification
                 actualresponse(1,1,trial_num) = 1;
@@ -180,13 +170,7 @@ for trial_num = 1:number_of_trials
                 actualresponse(3,1,trial_num) = 1;
                 previousstimuli(trial_num,1) = 3;
             end
-        else
-            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
-            actualresponse(:,:,trial_num) = 1;
-            previousstimuli(trial_num,1) = 4;
-        end
     elseif whichone == 2
-        if ifblank ~= 4
             if (randshape > 24.5 && randshape < 73.5)
                 response(trial_num,1) = 0; %0 entry in first column for incorrect identification
                 actualresponse(1,2,trial_num) = 1;
@@ -200,13 +184,7 @@ for trial_num = 1:number_of_trials
                 actualresponse(3,2,trial_num) = 1;
                 previousstimuli(trial_num,1) = 3;
             end
-        else
-            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
-            actualresponse(:,:,trial_num) = 1;
-            previousstimuli(trial_num,1) = 4;
-        end
     elseif whichone == 3
-        if ifblank ~= 4
             if (randshape > 24.5 && randshape < 73.5)
                 response(trial_num,1) = 0; %0 entry in first column for incorrect identification
                 actualresponse(1,3,trial_num) = 1;
@@ -220,31 +198,6 @@ for trial_num = 1:number_of_trials
                 actualresponse(3,3,trial_num) = 1;
                 previousstimuli(trial_num,1) = 3;
             end
-        else
-            response(trial_num, 1) = 0; %1 entry in first column is for correct identification
-            actualresponse(:,:,trial_num) = 1;
-            previousstimuli(trial_num,1) = 4;
-        end
-    elseif whichone == 4
-        if ifblank ~= 4
-            if (randshape > 24.5 && randshape < 73.5)
-                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-                actualresponse(1,3,trial_num) = 1;
-                previousstimuli(trial_num,1) = 1;
-            elseif (randshape > 73.5 && randshape < 122.5)
-                response(trial_num,1) = 0; %0 entry in first column for incorrect identification
-                actualresponse(2,3,trial_num) = 1;
-                previousstimuli(trial_num,1) = 2;
-            elseif (randshape > 122.5 && randshape < 149) || (randshape > 0 && randshape < 24.5)
-                response(trial_num, 1) = 0; %1 entry in first column is for correct identification
-                actualresponse(3,3,trial_num) = 1;
-                previousstimuli(trial_num,1) = 3;
-            end
-        else
-            response(trial_num, 1) = 1; %1 entry in first column is for correct identification
-            actualresponse(:,:,trial_num) = 1;
-            previousstimuli(trial_num,1) = 4;
-        end
     end
     
     %% compares the user response to the response biased towards A, B, or C shape
