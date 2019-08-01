@@ -156,7 +156,7 @@ end
 % Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
 % Accuracy
 
-Saving User's Results
+%%Saving User's Results
 cd('../');
 if isdir('Results')
     cd('Results');
