@@ -1,9 +1,9 @@
-Setting up
+%%Setting up
 close all;
 clear all;
 %global delayTime; % Retrieving the global variable value from our app GUI
 
-Obtaining User Input
+%%Obtaining User Input
 Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
 dlg_title = 'Subject Information';
 num_lines = 1;
@@ -21,7 +21,7 @@ actualaccuracy = zeros(1,number_of_trials);
 
 whichone = zeros(1,number_of_trials);
 
-Load Screens
+%%Load Screens
 Screen('Preference', 'SkipSyncTests', 1);
 [window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
@@ -37,7 +37,7 @@ noisePatterns = cell(147, 1);
 
 cd('shape_Stimuli');
 
-showing random morph image behind noise
+%%showing random morph image behind noise
 for f = 1:147
     Mask_Plain = imread([num2str(f) 'mask.JPG']); %Load black circle on white background.
     Mask_Plain = 255-Mask_Plain(:,:,1); %use first layer
@@ -103,7 +103,7 @@ for trial_num = 1:number_of_trials
     
     WaitSecs(.3);
 
-showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
+%%showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     DrawFormattedText(window,'Was the tumor present (1 for Yes, 2 for No)?','center',100,[0 0 0]);
     
     
