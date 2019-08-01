@@ -1,8 +1,8 @@
-Setting up
+%%Setting up
 close all;
 clear all;
 
-Obtaining User Input
+%%Obtaining User Input
 Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
 dlg_title = 'Subject Information';
 num_lines = 1;
@@ -23,7 +23,7 @@ locations = zeros(number_of_trials, 2);
 
 wasserialdependence = zeros(1,number_of_trials);
 
-Load Screens
+%%Load Screens
 Screen('Preference', 'SkipSyncTests', 1);
 [window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
@@ -39,7 +39,7 @@ mask_mem_Textures = cell(number_of_trials, 1);
 
 cd('shape_Stimuli');
 
-showing random morph image behind noise
+%%showing random morph image behind noise
 for f = 1:147
     Mask_Plain = imread([num2str(f) 'mask.JPG']); %Load black circle on white background.
     Mask_Plain = 255-Mask_Plain(:,:,1); %use first layer
@@ -57,7 +57,7 @@ for f = 1:147
 end
 Screen('Flip', window);
 
-Making noise patterns
+%%Making noise patterns
 background = zeros(2160, 3840, 4); % Initialize outside of loop
 for f = 1 : number_of_trials
     greyorblack = round(rand(window_w, window_h)) * 255;
@@ -88,11 +88,21 @@ for f = 1 : number_of_trials
     
 end
 
-Trials
+Screen('Flip', window);
+Screen('DrawText', window', 'Click to begin!', x_center - 50, y_center);
+Screen('Flip', window);
+
+clickedYet = false;
+while ~clickedYet
+  [x, y, clicks] = GetMouse;
+  if any(clicks)
+    clickedYet = true;
+  end
+end
+
+%%Trials
 img_w = size(tmp_bmp, 2)/4; % width of pictures
 img_h = size(tmp_bmp, 1)/4; % height of pictures
-
-
 
 for trial_num = 1:number_of_trials
     HideCursor();
@@ -116,7 +126,7 @@ for trial_num = 1:number_of_trials
     
     Screen('Flip', window);
 
-Getting User Clicks
+%%Getting User Clicks
     clickedYet = false;
     while ~clickedYet
         [x, y, clicks] = GetMouse;
@@ -160,7 +170,7 @@ end
 % Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
 % Accuracy
 
-Saving User's Results
+%%Saving User's Results
 cd('../');
 if isdir('Results')
     cd('Results');
