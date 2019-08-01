@@ -1,10 +1,9 @@
-%% Setting up
+Setting up
 close all;
 clear all;
-global delayTime; % Retrieving the global variable value from our app GUI
+%global delayTime; % Retrieving the global variable value from our app GUI
 
-%% Obtaining User Input
-
+Obtaining User Input
 Info = {'Initials', 'Full Name','Gender [1=Male, 2=Female, 3=Other]','Age','Ethnicity', 'Years of Experience'};
 dlg_title = 'Subject Information';
 num_lines = 1;
@@ -21,8 +20,8 @@ isserialdependence = zeros(1,number_of_trials);
 actualaccuracy = zeros(1,number_of_trials);
 
 whichone = zeros(1,number_of_trials);
-%% Load Screens
 
+Load Screens
 Screen('Preference', 'SkipSyncTests', 1);
 [window, rect] = Screen('OpenWindow', 0,[128 128 128]);
 Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); % allowing transparency in the photos
@@ -34,16 +33,30 @@ window_h = rect(4);
 x_center = window_w/2;
 y_center = window_h/2;
 
+noisePatterns = cell(147, 1);
+
 cd('shape_Stimuli');
 
-%% showing random morph image behind noise
-
+showing random morph image behind noise
 for f = 1:147
     Mask_Plain = imread([num2str(f) 'mask.JPG']); %Load black circle on white background.
     Mask_Plain = 255-Mask_Plain(:,:,1); %use first layer
     tmp_bmp = imread(['Morph' num2str(f) '.JPG']);
     tmp_bmp(:,:,4) = Mask_Plain;
     tid(f) = Screen('MakeTexture', window, uint8(tmp_bmp));
+    
+    greyorblack = round(rand(window_w, window_h)) * 255;
+    for cols = 1:window_h
+        for rows = 1:window_w
+            if greyorblack(rows,cols) == 255 %white (light)
+                greyorblack(rows,cols) = 72;
+            elseif greyorblack(rows, cols) == 0 %black (dark)
+                greyorblack(rows,cols) = 45;
+            end
+        end
+    end
+    
+    noisePatterns{f} = greyorblack;
     
     Screen('DrawText', window, 'Loading...', x_center*0.0069, y_center*1.9178); % Write text to confirm loading of images
     Screen('DrawText', window, sprintf('%d%%',round(f*(100/147))), 120, y_center+412.9950); % Write text to confirm percentage complete
@@ -72,18 +85,8 @@ for trial_num = 1:number_of_trials
    
     randshape = randi(shape_num); % making sure the shape is different each time (random)
     % changing the colors of the noise to be closer to the background color of the image
-    greyorblack = round(rand(window_w, window_h)) * 255;
-    for cols = 1:window_h
-        for rows = 1:window_w
-            if greyorblack(rows,cols) == 255 %white (light)
-                greyorblack(rows,cols) = 72;
-            elseif greyorblack(rows, cols) == 0 %black (dark)
-                greyorblack(rows,cols) = 45;
-            end
-        end
-    end
     
-    mask_mem = resizem(greyorblack, [2 * rect(4), 2 * rect(3)]);
+    mask_mem = resizem(noisePatterns{trial_num}, [2 * rect(4), 2 * rect(3)]);
     for hi = 1:3
         background(:,:,hi) = mask_mem;
     end
@@ -99,8 +102,8 @@ for trial_num = 1:number_of_trials
     Screen('Flip', window);
     
     WaitSecs(.3);
-    %% showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
-    
+
+showing three (A, B, and C) images and asking for the user to input which image the one he saw was closest to (using keys 1,2,3 respectively)
     DrawFormattedText(window,'Was the tumor present (1 for Yes, 2 for No)?','center',100,[0 0 0]);
     
     
@@ -153,7 +156,7 @@ end
 % Accuracy = strcat(num2str(actualaccuracy), '/', num2str(number_of_trials-1)); %shows accuracy
 % Accuracy
 
-%% Saving User's Results
+Saving User's Results
 cd('../');
 if isdir('Results')
     cd('Results');
@@ -177,3 +180,4 @@ save('Results.mat',  'isserialdependence', 'actualaccuracy', 'number_of_trials')
 Screen('CloseAll');
 cd('../'); %Go back to original directory.
 cd('../');
+
