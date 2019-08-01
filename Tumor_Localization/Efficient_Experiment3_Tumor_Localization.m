@@ -8,11 +8,11 @@ dlg_title = 'Subject Information';
 num_lines = 1;
 subject_info = inputdlg(Info,dlg_title,num_lines);
 
-existingData = load('subjectNumber.mat');
+existingData = load('../subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
-save('subjectNumber', 'subjectNumber');
+save('../subjectNumber.mat', 'subjectNumber');
 
-number_of_trials = 20;
+number_of_trials = 1;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
 overtimeaccuracy = zeros(1, number_of_trials);
@@ -37,7 +37,7 @@ y_center = window_h/2;
 noisePatterns = cell(number_of_trials, 1);
 mask_mem_Textures = cell(number_of_trials, 1);
 
-cd('shape_Stimuli');
+cd('../shape_Stimuli');
 %% showing random morph image behind noise
 
 for f = 1:147
@@ -176,7 +176,7 @@ end
 % Accuracy
 %% Saving User's Results
 
-cd('../');
+cd('../Tumor_Localization');
 if isdir('Results')
     cd('Results');
 elseif ~isdir('Results')
