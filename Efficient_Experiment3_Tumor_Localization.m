@@ -12,7 +12,7 @@ existingData = load('subjectNumber.mat');
 subjectNumber = existingData.subjectNumber + 1;
 save('subjectNumber', 'subjectNumber');
 
-number_of_trials = 5;
+number_of_trials = 20;
 response = zeros(number_of_trials,1);%if the user is right or wrong
 
 overtimeaccuracy = zeros(1, number_of_trials);
